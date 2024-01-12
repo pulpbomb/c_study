@@ -1,42 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+int main() {
+    int a = 0;
+    int x = a++;
+    //int y = ++x;
+    printf(" x = %d ", x);
+}
+
 // auto - static
+/*
+int main()
+{
+    for (int i = 0; i <= 6; ++i)
+        printf("%d\n", i);
+}
+*/
 
-//int f_fib()
-//{
-
-//int first = 0, second = 1;
-//int rez = first + second;
-//    first = second;
-//    second = rez;
-
-//return rez;
-//}
-
-//int main()
-//{
-//    for (int i = 0; i < 6; i++)
-//        printf("%d\n", f_fib());
-//}
-
-
-
-
-//int main()
-//{
+/* 
+int main()
+{
    // printf("c:\today\new\begin.txt ");
 
-   // int o = 020, h = 0x20, d = 20, b = 0b111;
-   // printf("dec = %d oct = %o hex = %x", d, d, d);
+    int o = 020, h = 0x20, d = 20, b = 0b111;
+    printf("dec = %d oct = %o hex = %x", d, d, d);
 
 
    // printf("7 / 2 = %d \n", 7 / 2);
    // printf("7 / 2 = %.3f \n", (float)7/2);
    // printf("7 / 2 = %.2f \n", 7/2 + 0.);
 
-
-
+}
+*/
 //  ++  --
 /*
     int x = 5, y,z;
