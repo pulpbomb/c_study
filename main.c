@@ -1,3 +1,5 @@
+//TEST_TEST_TEST
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -5,8 +7,9 @@ int main() {
     int a = 0;
     int x = a++;
     //int y = ++x;
-    printf(" x = %d ", x);
+    printf(" a = %d ", a);
 }
+
 
 // auto - static
 /*
