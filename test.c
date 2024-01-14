@@ -3,13 +3,36 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/*
+int main() {
+  int number = 11;
+  int count  = number / 4;
+  int left   = number % 4;
+  int i = 0;
+  
+  while (left-- > 0) {
+    printf("letf_i = %d \n", i++);
+  }
+  while (count-- > 0) {
+    printf("count1 = %d \n", i++);
+    printf("count2 = %d \n", i++);
+    printf("count3 = %d \n", i++);
+    printf("count4 = %d \n", i++);
+  }  
+  
+  printf("%d", i);
+}
+*/
+
+
+/*
 int main() {
     int a = 0;
     int x = a++;
     //int y = ++x;
     printf(" a = %d ", a);
 }
-
+*/
 
 // auto - static
 /*
@@ -46,18 +69,11 @@ int main()
     printf("x = %d \n", x);
 */
 
-
-
-//                  ������� ��������
   //  int x = 3;                          //    11 -> 1 = 01    11 <- 1 = 110
  //   printf(" x >> 1 = %d \n x << 1 = %d \n  x = %d ", x>>1, x<<1, x);
 
-
-
-//��������� ����� �� ���������������
    // printf("%d", ~(x - 1));
 
-// �������� �������� �����
   /*
     int b = 0b00000001;
     if (x & b)
@@ -68,8 +84,6 @@ int main()
 
 //}
 
-
-// �������
 
 /*#define sum_x_y(x, y) x + y
 #define max(x, y) (x > y ? x : y)
@@ -92,8 +106,6 @@ int main(){
 }
 */
 
-// ������ ���������� ��������������
-
 /*#define sum(max, out) {             \
     int total = 0;                  \
     for(int i = 0; i <= max; i++)   \
@@ -109,9 +121,6 @@ int main() {
 }
 */
 
-
-
-//      ���������
 
 /*
 void f_add(int *x, int *y){
@@ -150,30 +159,3 @@ int main(){
 
 }
 */
-
-
-
-// ���������� �����
-/*
-int main() {
-  int number = 11; // ����� ����� �������� ��� ��� ����� 11.
-  int count = number / 4; // ����� �������� ������������ �����.
-  int i = 0;
-
-  // ������� ������� �� ������� ������ ����� �������� �� ���������� ��������
-  // � ����� �������� ������������ ����� � ��������� ������� � ���� ��������
-  // ������ ���� ������������ �����.
-  switch (number % 4) {
-    case 0:
-      do {
-        ++i;
-    case 3: ++i; // <- ��� ������. ���������� ����� �������� ������ � ��� ������
-    case 2: ++i; // �������� ������������ ����� ����� ��������� �� ������, �
-    case 1: ++i; // ������ ��� �������� ��������� ����� (11 % 4 ��������).
-      } while (count-- > 0);
-  }
-
-  printf("%d ", i);
-}
-*/
-
