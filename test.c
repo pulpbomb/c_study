@@ -141,7 +141,7 @@ int main()
 }
 */
 
-/*
+
 void set_el(int *a, int const *b){
     a[0] = 3;
 }
@@ -158,4 +158,3 @@ int main(){
         printf("%d ", b[i] );
 
 }
-*/

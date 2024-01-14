@@ -4,7 +4,7 @@
  
 int main()
 {
-  FILE * ptrFile = fopen( "zipjpeg1.jpg" , "rb" );
+  FILE *ptrFile = fopen( "zipjpeg1.jpg" , "rb" );
  
   if (ptrFile == NULL)
   {
@@ -18,7 +18,7 @@ int main()
   printf("filesize: %d bytes \n", lSize);       // выводим размер в байтах
   rewind (ptrFile);     // устанавливаем указатель в конец файла
  
-  char * buffer = (char*) malloc(sizeof(char) * lSize);     // выделить память для хранения содержимого файла
+  char *buffer = (char*) malloc(sizeof(char) * lSize);     // выделить память для хранения содержимого файла
   if (buffer == NULL)
   {
       fputs("Ошибка памяти", stderr);
