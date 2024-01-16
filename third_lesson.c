@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
-//int main()
-//{
+int main()
+{
 //размер типа
 #if 0
     printf("размер char = %zd \n", sizeof(char));
@@ -29,8 +29,8 @@ printf("veribig = %lld, но не %ld\n", veribig, veribig);
 
 
 // переполнение
-#if 0
-    int8_t i8 = 127;
+#if 1
+    uint16_t i8 = 127;
         printf("x = %d \n", i8);
     i8++;
         printf("x + 1 = %d \n", i8);
@@ -84,11 +84,11 @@ printf("veribig = %lld, но не %ld\n", veribig, veribig);
 #endif
 
     //return 0;
-//}
+}
 
 
 
-
+/*
 #pragma pack(push, 1) // отключить выравнивание структуры автоматическое
 typedef struct // typedef используется для задания имени уже сущ типу данных
 {
@@ -110,3 +110,4 @@ my_arg_t my_arg;
 
     return 0;
 }
+*/

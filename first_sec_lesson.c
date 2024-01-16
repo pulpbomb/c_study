@@ -141,7 +141,7 @@ int main()
 }
 */
 
-
+/*
 void set_el(int *a, int const *b){
     a[0] = 3;
 }
@@ -157,4 +157,14 @@ int main(){
     for(int i = 0; i < 10; i++)
         printf("%d ", b[i] );
 
+}
+*/
+
+int main(){
+    int x = 10;
+    int *p;
+    p = &x;
+    int y = *p;
+    printf("память = %x\nзначение = %d", p, y);
+    return 0;
 }
