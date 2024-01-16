@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <inttypes.h>
-//#include <stdbool.h>
+#include <assert.h>
+#include <stdbool.h>
 
 /*
 0. Описать структуры заголовков zip-файлов.
@@ -31,40 +32,26 @@ struct eocdr {
         const uint8_t *comment;   /* Сам Комментарий */
 };
 
-/* Читаем 16 и 32 бит в little-endian and смещаем p вперед после этого. ( скорее всего потому что у нас минимаьная )*/
-
-uint16_t read16le(const void *p)
-{
-    return 0;
-}
-
-uint32_t read32le(const void *p)
-{
-    return 0;
-}
-
-#define READ16(p) ((p) += 2, read16le((p) - 2))
-#define READ32(p) ((p) += 4, read32le((p) - 4))
-
 /* Размер End of Central Directory Record, без комментария. */
 #define EOCDR_BASE_SZ 22
-#define EOCDR_SIGNATURE 0x06054b50  /* "PK\5\6" little-endian. */
+#define EOCDR_SIGNATURE 0x06054b50 /* "PK\5\6" little-endian. */
+#define EOCDR_POS (file_size - EOCDR_BASE_SZ)
 
-#define FILE_PATH "zipjpeg1.jpg"
+/*Пытаемся найти запись eocdr*/
 
-/*Читаем файл, узнаем его размер*/
-int64_t getFileSize(const char* file_name){
+int64_t getFileSizes(const char *file_name){
 	int64_t file_size = 0;
-	FILE* fd = fopen(file_name, "rb");
+        int64_t noecdr_file_size = 0;
+	FILE *fd = fopen(file_name, "rb");
 	if(fd == NULL){
 		file_size = -1;
 	}
 	else{
-		fseek(fd, 0, SEEK_END);
-		file_size = ftello(fd);
+                noecdr_file_size = fseek(fd, -22, SEEK_END);
+                noecdr_file_size = ftell(fd);
 		fclose(fd);
 	}
-	return file_size;
+	return noecdr_file_size;
 }
 
 int main(int argc, char **argv){
@@ -72,10 +59,9 @@ int main(int argc, char **argv){
                 printf("Use Syntax: %s filename\n", argv[0]);
                 return 1;
         }
-        size_t size = sizeof(struct eocdr);
-        printf("Size of struct eocdr = %u\n", size);
         char *file_name = argv[1];
-	int64_t file_size = getFileSize(argv[1]);
-	printf("File size: %lld\n", file_size);
+	int64_t file_size = getFileSizes(argv[1]);
+        int64_t noecdr_file_size = getFileSizes(argv[1]);
+	printf("File size: %d\n", noecdr_file_size);
 	return 0;
 }
