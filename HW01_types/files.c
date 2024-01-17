@@ -37,21 +37,17 @@ struct eocdr {
 #define EOCDR_SIGNATURE 0x06054b50 /* "PK\5\6" little-endian. */
 #define EOCDR_POS (file_size - EOCDR_BASE_SZ)
 
-/*Пытаемся найти запись eocdr*/
+/*Пытаемся найти и вывести запись eocdr*/
 
-int64_t getFileSizes(const char *file_name){
-	int64_t file_size = 0;
-        int64_t noecdr_file_size = 0;
-	FILE *fd = fopen(file_name, "rb");
-	if(fd == NULL){
-		file_size = -1;
-	}
-	else{
-                noecdr_file_size = fseek(fd, -22, SEEK_END);
-                noecdr_file_size = ftell(fd);
-		fclose(fd);
-	}
-	return noecdr_file_size;
+char get(const char *file_name){
+	int file_size = 0;
+        int noecdr_file_size = 0;
+	FILE *fd = fopen(file_name, "rb"); 
+        noecdr_file_size = fseek(fd, -22, SEEK_END);
+        char str[5];
+        fgets(str, 5, fd);
+        fclose(fd);
+	return  puts(str);
 }
 
 int main(int argc, char **argv){
@@ -60,8 +56,6 @@ int main(int argc, char **argv){
                 return 1;
         }
         char *file_name = argv[1];
-	int64_t file_size = getFileSizes(argv[1]);
-        int64_t noecdr_file_size = getFileSizes(argv[1]);
-	printf("File size: %d\n", noecdr_file_size);
-	return 0;
+        get(argv[1]);
+        return 0;
 }
