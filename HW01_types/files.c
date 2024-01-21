@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ncursesw/curses.h>
 
 /*
 
@@ -88,54 +89,57 @@ long get_cdfh_filename_offset(char *file_name){
 }
 
 char* get_filename_from_zip(char *file_name){
-    long offset_filename = get_cdfh_filename_offset(file_name);
-    long offset_filelen = get_cdfh_filelen_offset(file_name);
+        long offset_filename = get_cdfh_filename_offset(file_name);
+        long offset_filelen = get_cdfh_filelen_offset(file_name);
 
-    if (offset_filename == -1 || offset_filelen == -1) {
-        return NULL;
-    }
+        if (offset_filename == -1 || offset_filelen == -1) {
+                return NULL;
+        }
 
-    FILE *fd = fopen(file_name, "rb");
+        FILE *fd = fopen(file_name, "rb");
 
-    // Считываем длину имени
-    fseek(fd, offset_filelen, SEEK_SET);
-    unsigned char name_len[2];
-    fread(name_len, 2, 1, fd);
-    int name_len_dec = name_len[0] + (name_len[1] << 8);
+        // Считываем длину имени
+        fseek(fd, offset_filelen, SEEK_SET);
+        unsigned char name_len[2];
+        fread(name_len, 2, 1, fd);
+        int name_len_dec = name_len[0] + (name_len[1] << 8);
 
-    // Считываем имя файла
-    fseek(fd, offset_filename, SEEK_SET);
-    char *filename = (char*)malloc(name_len_dec + 1);
-    fread(filename, name_len_dec, 1, fd);
-    filename[name_len_dec] = '\0';
-
-    fclose(fd);
-    return filename;
+        // Считываем имя файла
+        fseek(fd, offset_filename, SEEK_SET);
+        char *zipfilename = (char*)malloc(name_len_dec + 1);
+        fread(zipfilename, name_len_dec, 1, fd);
+        zipfilename[name_len_dec] = '\0';
+        free(zipfilename);
+        fclose(fd);
+        return zipfilename;
 }
 
 int main(int argc, char **argv){
-        /* Проверка на аргументы. */
+        setlocale(0, "rus");
         if (argc <= 1){
                 printf("Use Syntax: %s filename\n", argv[0]);
                 return 1;
         }
+        FILE *fd = fopen(argv[1], "rb");
         long offset = get_eocdr_offset(argv[1]);
         long offset_filename = get_cdfh_filename_offset(argv[1]);
         long offset_filelen = get_cdfh_filelen_offset(argv[1]);
-        char  *filename = get_filename_from_zip(argv[1]);
+        char  *zipfilename = get_filename_from_zip(argv[1]);
         if (offset != -1) {
                 printf("EOCDR found, this is ZIP-file.\n");
                 if (offset_filelen == -1 || offset_filename == -1) {
-                printf("But zip archive is empty!\n");
-                return 0;
+                printf("But ZIP-file is empty!\n");
+                return 1;
                 }
-                // uncomment for more debug...
-                // printf("FILENAME must be at offset %ld\n", offset_filename);
-                // printf("FILELEN must be at offset %ld\n", offset_filelen);
-                printf("Filenames = %s\n", filename);
+                //debug...
+                printf("FILENAME must be at offset %ld\n", offset_filename);
+                printf("FILELEN must be at offset %ld\n", offset_filelen);
+                printf("Filenames = %s\n", zipfilename);
         }
         else {
                 printf("File has no zip signature!");
         }
+        fclose(fd);
         return 0;
 }
+
