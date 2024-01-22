@@ -7,6 +7,8 @@
 #include <ctype.h>
 #include <locale.h>
 
+// Пример создания и работы со стеком.
+
 #define STACK_SIZE 10
 
 struct ELEMENT

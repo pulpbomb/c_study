@@ -8,7 +8,7 @@
 #include <ctype.h>
 #include <locale.h>
 
-
+// Пример создания и работы с очередью.
 #define QUEUE_SIZE 10
 
 struct ELEMENT
