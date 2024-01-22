@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ncursesw/curses.h>
+#include <locale.h>
 
 /*
 
@@ -36,6 +36,47 @@ long get_eocdr_offset(char *file_name){
 
         fclose(fd);
         return offset;
+}
+
+long get_total_enties_offset(char *file_name){
+        FILE *fd = fopen(file_name, "rb");
+        unsigned char eocdr_sign[] = {0x50, 0x4b, 0x05, 0x06};
+        size_t pattern_len = sizeof(eocdr_sign) / sizeof(eocdr_sign[0]);
+
+        unsigned char buffer[pattern_len];
+        size_t bytes_read;
+        long offset_te = -1;
+
+        while ((bytes_read = fread(buffer, 1, pattern_len, fd)) == pattern_len) {
+                if (memcmp(buffer, eocdr_sign, pattern_len) == 0) {
+                offset_te = ftell(fd) - pattern_len + 10;
+                break;
+                }
+                fseek(fd, -pattern_len + 1, SEEK_CUR);
+        }
+
+        if (bytes_read != pattern_len && !feof(fd)) {
+                puts("Failed to read file!\n");
+                offset_te = -1;
+        }
+
+        fclose(fd);
+        return offset_te;
+}
+
+unsigned short get_total_enties(char *file_name){
+        long offset_te = get_total_enties_offset(file_name);
+        if (offset_te == -1) {
+                return 1;
+        }
+
+        FILE *fd = fopen(file_name, "rb");
+
+        unsigned short te;
+        fseek(fd, offset_te, SEEK_SET);
+        fread(&te, sizeof(te), 1, fd);
+        fclose(fd);
+        return te;
 }
 
 long get_cdfh_filelen_offset(char *file_name){
@@ -120,10 +161,12 @@ int main(int argc, char **argv){
                 printf("Use Syntax: %s filename\n", argv[0]);
                 return 1;
         }
-        FILE *fd = fopen(argv[1], "rb");
+        //FILE *fd = fopen(argv[1], "rb");
         long offset = get_eocdr_offset(argv[1]);
         long offset_filename = get_cdfh_filename_offset(argv[1]);
         long offset_filelen = get_cdfh_filelen_offset(argv[1]);
+        long offset_te = get_total_enties_offset(argv[1]);
+        int te = get_total_enties(argv[1]);
         char  *zipfilename = get_filename_from_zip(argv[1]);
         if (offset != -1) {
                 printf("EOCDR found, this is ZIP-file.\n");
@@ -134,12 +177,14 @@ int main(int argc, char **argv){
                 //debug...
                 printf("FILENAME must be at offset %ld\n", offset_filename);
                 printf("FILELEN must be at offset %ld\n", offset_filelen);
+                printf("Total entries must be at offset %ld\n", offset_te);
+                printf("Total entries - %d\n", te);
                 printf("Filenames = %s\n", zipfilename);
         }
         else {
                 printf("File has no zip signature!");
         }
-        fclose(fd);
+        //fclose(fd);
         return 0;
 }
 
