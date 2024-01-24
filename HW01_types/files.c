@@ -39,50 +39,8 @@ long get_eocdr_offset(FILE *fd){
         return offset;
 }
 
-long get_cdfh_filelen_offset(FILE *fd){
-        fseek(fd, 0, SEEK_SET);
-        unsigned char cdfh_sign[] = {0x50, 0x4b, 0x01, 0x02};
-        size_t pattern_len = sizeof(cdfh_sign) / sizeof(cdfh_sign[0]);
-        unsigned char buffer[pattern_len];
-        size_t bytes_read;
-        long offset_filelen = -1;
-        while ((bytes_read = fread(buffer, 1, pattern_len, fd)) == pattern_len) {
-                if (memcmp(buffer, cdfh_sign, pattern_len) == 0) {
-                offset_filelen = ftell(fd) - pattern_len + 28;
-                break;
-                }
-                fseek(fd, -pattern_len + 1, SEEK_CUR);
-        }
-        if (bytes_read != pattern_len && !feof(fd)) {
-                puts("FILE_LEN Failed to read file!\n");
-                offset_filelen = -1;
-        }
-        return offset_filelen;
-}
-
-long get_cdfh_filename_offset(FILE *fd){
-        fseek(fd, 0, SEEK_SET);
-        unsigned char cdfh_sign[] = {0x50, 0x4b, 0x01, 0x02};
-        size_t pattern_len = sizeof(cdfh_sign) / sizeof(cdfh_sign[0]);
-        unsigned char buffer[pattern_len];
-        size_t bytes_read;
-        long offset_filename = -1;
-        while ((bytes_read = fread(buffer, 1, pattern_len, fd)) == pattern_len) {
-                if (memcmp(buffer, cdfh_sign, pattern_len) == 0) {
-                offset_filename = ftell(fd) - pattern_len + 46;
-                break;
-                }
-                fseek(fd, -pattern_len + 1, SEEK_CUR);
-        }
-
-        if (bytes_read != pattern_len && !feof(fd)) {
-                puts("ZIP_FNAME Failed to read file!\n");
-                offset_filename = -1;
-        }
-        return offset_filename;
-}
-
 long get_total_enties_offset(FILE *fd){
+        long offset = get_eocdr_offset(fd);
         fseek(fd, 0, SEEK_SET);
         unsigned char eocdr_sign[] = {0x50, 0x4b, 0x05, 0x06};
         size_t pattern_len = sizeof(eocdr_sign) / sizeof(eocdr_sign[0]);
@@ -112,6 +70,55 @@ unsigned short get_total_enties(FILE *fd){
         fseek(fd, offset_te, SEEK_SET);
         fread(&te, sizeof(te), 1, fd);
         return te;
+}
+
+long get_cdfh_filelen_offset(FILE *fd, ...){
+        size_t prev_filelen_offset;
+        fseek(fd, 0, SEEK_SET);
+        unsigned char cdfh_sign[] = {0x50, 0x4b, 0x01, 0x02};
+        size_t pattern_len = sizeof(cdfh_sign) / sizeof(cdfh_sign[0]);
+        unsigned char buffer[pattern_len];
+        size_t bytes_read;
+        long offset_filelen = -1;
+        while ((bytes_read = fread(buffer, 1, pattern_len, fd)) == pattern_len) {
+                if (memcmp(buffer, cdfh_sign, pattern_len) == 0) {
+                offset_filelen = ftell(fd) - pattern_len + 28;
+                prev_filelen_offset = offset_filelen;
+                break;
+                }
+                fseek(fd, -pattern_len + 1, SEEK_CUR);
+        }
+        if (bytes_read != pattern_len && !feof(fd)) {
+                puts("FILE_LEN Failed to read file!\n");
+                offset_filelen = -1;
+        }
+        return prev_filelen_offset;
+}
+
+long get_cdfh_filename_offset(FILE *fd, ...){
+        long prev_filelen_offset = get_cdfh_filelen_offset(fd);
+        fseek(fd, prev_filelen_offset, SEEK_SET);
+        long offset_filename = ftell(fd) + 18;
+        /*
+        unsigned char cdfh_sign[] = {0x50, 0x4b, 0x01, 0x02};
+        size_t pattern_len = sizeof(cdfh_sign) / sizeof(cdfh_sign[0]);
+        unsigned char buffer[pattern_len];
+        size_t bytes_read;
+        long offset_filename = -1;
+        while ((bytes_read = fread(buffer, 1, pattern_len, fd)) == pattern_len) {
+                if (memcmp(buffer, cdfh_sign, pattern_len) == 0) {
+                offset_filename = ftell(fd) - pattern_len + 18;
+                break;
+                }
+                fseek(fd, -pattern_len + 1, SEEK_CUR);
+        }
+
+        if (bytes_read != pattern_len && !feof(fd)) {
+                puts("ZIP_FNAME Failed to read file!\n");
+                offset_filename = -1;
+        }
+        */
+        return offset_filename;
 }
 
 char* get_filename_from_zip(FILE *fd){
@@ -150,22 +157,22 @@ int main(int argc, char **argv){
         long offset = get_eocdr_offset(fd);
         long offset_te = get_total_enties_offset(fd);
         int te = get_total_enties(fd);
-        long offset_filelen = get_cdfh_filelen_offset(fd);
+        long prev_filelen_offset = get_cdfh_filelen_offset(fd);
         long offset_filename = get_cdfh_filename_offset(fd);
         char  *zipfilename = get_filename_from_zip(fd);
 
         if (offset != -1) {
                 printf("EOCDR found, this is ZIP-file.\n");
                 printf("EOCDR must be at offset %ld\n", offset);
-                if (offset_filelen == -1 || offset_filename == -1) {
+                if (prev_filelen_offset == -1) {
                 printf("But ZIP-file is empty!\n");
                 return 1;
                 }
                 //debug...
-                printf("FILENAME must be at offset %ld\n", offset_filename);
-                printf("FILELEN must be at offset %ld\n", offset_filelen);
                 printf("Total entries must be at offset %ld\n", offset_te);
                 printf("Total entries - %d\n", te);
+                printf("FILELEN must be at offset %ld\n", prev_filelen_offset);
+                printf("FILENAME must be at offset %ld\n", offset_filename);
                 printf("Filenames = %s\n", zipfilename);
         }
         else {
