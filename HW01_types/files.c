@@ -29,8 +29,12 @@ unsigned short get_total_enties(FILE *fd, long offset_te){
                 return 1;
         }
         unsigned short te;
+        size_t bytes_read;
         fseek(fd, offset_te, SEEK_SET);
-        fread(&te, sizeof(te), 1, fd);
+        const size_t ret_size = fread(&te, sizeof(te), 1, fd);
+        if (ret_size != 1){
+                puts("TE read error!");
+        }
         return te;
 }
 
@@ -39,9 +43,10 @@ long get_cdfh_filelen_offset(FILE *fd, long offset_filelen){
         size_t pattern_len = sizeof(cdfh_sign) / sizeof(cdfh_sign[0]);
         unsigned char buffer[pattern_len];
         size_t bytes_read;
+        int filelen_hearder_start = 28;
         while ((bytes_read = fread(buffer, 1, pattern_len, fd)) == pattern_len) {
                 if (memcmp(buffer, cdfh_sign, pattern_len) == 0) {
-                offset_filelen = ftell(fd) - pattern_len + 28;
+                offset_filelen = ftell(fd) - pattern_len + filelen_hearder_start;
                 break;
                 }
                 fseek(fd, -pattern_len + 1, SEEK_CUR);
@@ -64,10 +69,12 @@ char* get_filename_from_zip(FILE *fd, long offset_filelen, long offset_filename)
 
         fseek(fd, offset_filename, SEEK_SET);
         char *zipfilename = (char*)malloc(name_len_dec + 1);
+        if (zipfilename == NULL){
+                puts("Memory allocation failed!");
+        }
         fread(zipfilename, name_len_dec, 1, fd);
         zipfilename[name_len_dec] = '\0';
         return zipfilename;
-        //free(zipfilename);
 }
 
 int main(int argc, char **argv){

@@ -2,6 +2,7 @@
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
         "compare": "c",
-        "stdio.h": "c"
+        "stdio.h": "c",
+        "locale.h": "c"
     }
 }
