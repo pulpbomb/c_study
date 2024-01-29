@@ -1,22 +1,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main()
+/*int main()
 {
     int mas[5] = {4, 6};
-    char str[] = "пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ!!!";
+    char str[] = "Это массив!!!";
     char *p = str;
     setlocale(0, "rus");
 
-#if 0
+#if 1
     printf("%d\n", mas[0]);
     printf("%d\n", *mas );
 
-    printf("\n%llx\n", &mas);
+    printf("\n%d\n", &mas);
     printf("%p\n", mas );
 
-    printf("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ %d\n", sizeof(str));
-    printf("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ %d\n", sizeof(p));
+    printf("Размер массива %d\n", sizeof(str));
+    printf("Размер указателя на массива %d\n", sizeof(p));
 #endif
 
 #if 0
@@ -33,9 +33,10 @@ int main()
 
     return 0;
 }
+*/
 
 
-// пїЅпїЅпїЅпїЅпїЅпїЅ 6.2.5.22 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: An array type of unknown size is an incomplete type. It is completed,
+// Раздел 6.2.5.22 Стандарта: An array type of unknown size is an incomplete type. It is completed,
 //  for an identifier of that type, by specifying the size in a later declaration.
 #if 0
 double average(int arr[], int size)
@@ -55,7 +56,7 @@ int main()
 }
 #endif
 
-//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (VLA)
+//Массивы переменной длины (VLA)
 //C99+
 #if 0
 void read_and_process(int n)
@@ -100,7 +101,7 @@ int main()
 #endif
 
 
-//пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+//Функции с переменным числом аргументов
 #if 0
 #include <stdarg.h>
 double average(int count, ...)
@@ -125,7 +126,7 @@ int main()
 #endif
 
 
-#if 0
+#if 1
 #include <sys\stat.h>
 #include <io.h>
 #include <time.h>
@@ -141,12 +142,13 @@ int main ()
     fp = fopen("file.txt","w+");  // if ((fp=fopen("test", "rb")) == NULL)
     result=fstat(fileno (fp), &buf);
     if (result !=0)
-        printf("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ\n");
+        printf("Плохой дескриптор файла\n");
     else
     {
-        printf("пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ: %ld\n", buf.st_size);
-        printf("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: %d\n", buf.st_dev);
-        printf("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: %s", ctime(&buf.st_atime));
+        printf("Размер файла: %ld\n", buf.st_size);
+        printf("Номер устройства: %d\n", buf.st_dev);
+        printf("Время модификации: %s",
+               ctime(&buf.st_atime));
     }
 
     fputs("This is course Otus", fp);
