@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUFFER_SIZE 1024
-
 int main(int argc, char *argv[]) {
         if (argc != 4) {
                 printf("Usage: %s <input_file> <encoding> <output_file>\n", argv[0]);
@@ -24,9 +22,7 @@ int main(int argc, char *argv[]) {
                 fclose(in);
                 return 1;
         }
-    
-        char buffer[BUFFER_SIZE];
-        size_t bytes_read;
+
         int c;
         if (strcmp(encoding, "1251") == 0) {
                 while ((c = fgetc(in)) != EOF) {
