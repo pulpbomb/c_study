@@ -126,7 +126,7 @@ int main()
 #endif
 
 
-#if 1
+#if 0
 #include <sys\stat.h>
 #include <io.h>
 #include <time.h>
