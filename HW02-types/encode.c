@@ -22,12 +22,23 @@ int main(int argc, char *argv[]) {
                 fclose(in);
                 return 1;
         }
-
+/*
+Диапазон номеров символов	Требуемое количество октетов
+00000000-0000007F	                1
+00000080-000007FF	                2
+00000800-0000FFFF	                3
+00010000-0010FFFF	                4
+Порядок действий примерно такой:
+        1. Каждый символ превращаем в Юникод.
+        2. Если код символа меньше 128, то к результату добавляем его в неизменном виде.
+        3. Если код символа меньше 2048, то берем последние 6 бит (& 0x3F) и первые 5 бит кода ( >> 6) символа.
+           К первым 5 битам добавляем 0xC0 и получаем первый байт последовательности, а к последним 6 битам добавляем 0x80 и получаем второй байт.
+*/
         int c;
         if (strcmp(encoding, "1251") == 0) {
                 while ((c = fgetc(in)) != EOF) {
-                        if (c >= 0x80 && c <= 0xFF) {
                         // Windows-1251 to Unicode
+                        if (c >= 0x80 && c <= 0xFF) {
                         c = c + 0x350;
                         } 
                         // Unicode to UTF-8
@@ -36,13 +47,41 @@ int main(int argc, char *argv[]) {
                         } else if (c < 0x800) {
                                 fputc(0xC0 | (c >> 6), out);
                                 fputc(0x80 | (c & 0x3F), out);
-                                } else {
-                                fputc(0xE0 | (c >> 12), out);
-                                fputc(0x80 | ((c >> 6) & 0x3F), out);
-                                fputc(0x80 | (c & 0x3F), out);
-                                }
+                        } 
+
                 }
-        } else {
+        }
+        else if (strcmp(encoding, "koi8") == 0) {
+                while ((c = fgetc(in)) != EOF) {
+                        // KOI8 to Unicode
+                        if (c >= 0x80 && c <= 0xFF) {
+                        c = c + 0x350;
+                        } 
+                        // Unicode to UTF-8
+                        if (c < 0x80) {
+                                fputc(c, out);
+                        } else if (c < 0x800) {
+                                fputc(0xC0 | (c >> 6), out);
+                                fputc(0x80 | (c & 0x3F), out);
+                        }
+                }
+        }
+        else if (strcmp(encoding, "8859") == 0) {
+                while ((c = fgetc(in)) != EOF) {
+                        // iso-8859-5 to Unicode
+                        if (c >= 0x80 && c <= 0xFF) {
+                        c = c + 0x350;
+                        } 
+                        // Unicode to UTF-8
+                        if (c < 0x80) {
+                                fputc(c, out);
+                        } else if (c < 0x800) {
+                                fputc(0xC0 | (c >> 6), out);
+                                fputc(0x80 | (c & 0x3F), out);
+                        }
+                }
+        }
+        else {
                 printf("Error: unsupported input encoding %s\n", encoding);
                 fclose(in);
                 fclose(out);
