@@ -51,26 +51,11 @@ int main(int argc, char *argv[]) {
 
                 }
         }
-        else if (strcmp(encoding, "koi8") == 0) {
-                while ((c = fgetc(in)) != EOF) {
-                        // KOI8 to Unicode
-                        if (c >= 0x80 && c <= 0xFF) {
-                        c = c + 0x350;
-                        } 
-                        // Unicode to UTF-8
-                        if (c < 0x80) {
-                                fputc(c, out);
-                        } else if (c < 0x800) {
-                                fputc(0xC0 | (c >> 6), out);
-                                fputc(0x80 | (c & 0x3F), out);
-                        }
-                }
-        }
         else if (strcmp(encoding, "8859") == 0) {
                 while ((c = fgetc(in)) != EOF) {
                         // iso-8859-5 to Unicode
                         if (c >= 0x80 && c <= 0xFF) {
-                        c = c + 0x350;
+                        c = c + 0x360;
                         } 
                         // Unicode to UTF-8
                         if (c < 0x80) {
