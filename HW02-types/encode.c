@@ -1,6 +1,19 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+
+/*
+Диапазон номеров символов	Требуемое количество октетов
+00000000-0000007F	                1
+00000080-000007FF	                2
+00000800-0000FFFF	                3
+00010000-0010FFFF	                4
+Порядок действий примерно такой:
+        1. Каждый символ превращаем в Юникод.
+        2. Если код символа меньше 128, то к результату добавляем его в неизменном виде.
+        3. Если код символа меньше 2048, то берем последние 6 бит (& 0x3F) и первые 5 бит кода ( >> 6) символа.
+           К первым 5 битам добавляем 0xC0 и получаем первый байт последовательности, а к последним 6 битам добавляем 0x80 и получаем второй байт.
+*/
+
 
 int main(int argc, char *argv[]) {
         if (argc != 4) {
@@ -22,18 +35,7 @@ int main(int argc, char *argv[]) {
                 fclose(in);
                 return 1;
         }
-/*
-Диапазон номеров символов	Требуемое количество октетов
-00000000-0000007F	                1
-00000080-000007FF	                2
-00000800-0000FFFF	                3
-00010000-0010FFFF	                4
-Порядок действий примерно такой:
-        1. Каждый символ превращаем в Юникод.
-        2. Если код символа меньше 128, то к результату добавляем его в неизменном виде.
-        3. Если код символа меньше 2048, то берем последние 6 бит (& 0x3F) и первые 5 бит кода ( >> 6) символа.
-           К первым 5 битам добавляем 0xC0 и получаем первый байт последовательности, а к последним 6 битам добавляем 0x80 и получаем второй байт.
-*/
+
         unsigned int koi8r[] =
         {       /*ю    а     б     ц     д     е     ф     г     х     и     й     к     л     м     н     о*/
                 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
@@ -48,7 +50,7 @@ int main(int argc, char *argv[]) {
         unsigned int utf8[] = 
         {
                 /*ю       а        б       ц       д      е       ф       г        х       и       й       к       л       м       н       о*/
-                0xD18E, 0xD0B0, 0xD0B1, 0xD086, 0xD0B4, 0xD0B5, 0xD084, 0xD0B3, 0xD085, 0xD0B8, 0xD0B9, 0xD0BA, 0xD0BB, 0xD0BC, 0xD0BD, 0xD0BE,
+                0xD18E, 0xD0B0, 0xD0B1, 0xD186, 0xD0B4, 0xD0B5, 0xD084, 0xD0B3, 0xD185, 0xD0B8, 0xD0B9, 0xD0BA, 0xD0BB, 0xD0BC, 0xD0BD, 0xD0BE,
                 /*п       я        р       с       т      у       ж       в        ь       ы       з       ш       э       щ       ч       ъ*/
                 0xD0BF, 0xD18F, 0xD180, 0xD181, 0xD182, 0xD183, 0xD0B6, 0xD0B2, 0xD18C, 0xD18B, 0xD0B7, 0xD188, 0xD18D, 0xD189, 0xD187, 0xD18A,
                 /*Ю       А        Б       Ц       Д      Е       Ф       Г        Х       И       Й       К       Л       М       Н       О*/
@@ -63,21 +65,24 @@ int main(int argc, char *argv[]) {
                 while ((c = fgetc(in)) != EOF){
                         if (c < 0x80) {
                                 fputc(c, out);
-                        }
-                        for (int i=0; i<koi8r[i]; i++) {
+                        } for (int i=0; i<koi8r[i]; i++) {
                                 if (c == koi8r[i]) {
-                                        fputc(utf8[i], out);
+                                        unsigned short value = utf8[i];
+                                        unsigned char high_byte = (value >> 8);
+                                        unsigned char low_byte = value & 0xFF;
+                                        fputc(high_byte, out);
+                                        fputc(low_byte, out);
                                 }
                         }
                 }
         }
         else if (strcmp(encoding, "1251") == 0) {
                 while ((c = fgetc(in)) != EOF) {
-                        // Windows-1251 to Unicode
+                        // Windows-1251 в Unicode
                         if (c >= 0x80 && c <= 0xFF) {
                         c = c + 0x350;
                         } 
-                        // Unicode to UTF-8
+                        // Unicode в UTF-8
                         if (c < 0x80) {
                                 fputc(c, out);
                         } else if (c < 0x800) {
@@ -89,11 +94,11 @@ int main(int argc, char *argv[]) {
         }
         else if (strcmp(encoding, "8859") == 0) {
                 while ((c = fgetc(in)) != EOF) {
-                        // iso-8859-5 to Unicode
+                        // iso-8859-5 в Unicode
                         if (c >= 0x80 && c <= 0xFF) {
                         c = c + 0x360;
                         } 
-                        // Unicode to UTF-8
+                        // Unicode в UTF-8
                         if (c < 0x80) {
                                 fputc(c, out);
                         } else if (c < 0x800) {
