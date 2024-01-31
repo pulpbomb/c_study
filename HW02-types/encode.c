@@ -88,6 +88,20 @@ int main(int argc, char *argv[]) {
                         }
                 }
         }
+        else if (strcmp(encoding, "koi8r") == 0) {
+                while ((c = fgetc(in)) != EOF){
+                        if (c < 0x80) {
+                                fputc(c, out);
+                        }
+                        for (int i=0; i<koi8r[i]; i++) {
+                                if (c == koi8r[i]) {
+                                        char d = 0xD0;
+                                        fputc(d, out);
+                                        fputc(utf8[i], out);
+                                }
+                        }
+                }
+        }
         else {
                 printf("Error: unsupported input encoding %s\n", encoding);
                 fclose(in);
