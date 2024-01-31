@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
         3. Если код символа меньше 2048, то берем последние 6 бит (& 0x3F) и первые 5 бит кода ( >> 6) символа.
            К первым 5 битам добавляем 0xC0 и получаем первый байт последовательности, а к последним 6 битам добавляем 0x80 и получаем второй байт.
 */
-        unsigned int koi8r[64] = 
+        unsigned int koi8r[] =
         {       /*ю    а     б     ц     д     е     ф     г     х     и     й     к     л     м     н     о*/
                 0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
                 /*п    я     р     с     т     у     ж     в     ь     ы     з     ш     э     щ     ч     ъ*/
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
                 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB, 0xFC, 0xFD, 0xFE, 0xFF
         };
 
-        unsigned int utf8[64] = 
+        unsigned int utf8[] = 
         {
                 /*ю       а        б       ц       д      е       ф       г        х       и       й       к       л       м       н       о*/
                 0xD18E, 0xD0B0, 0xD0B1, 0xD086, 0xD0B4, 0xD0B5, 0xD084, 0xD0B3, 0xD085, 0xD0B8, 0xD0B9, 0xD0BA, 0xD0BB, 0xD0BC, 0xD0BD, 0xD0BE,
@@ -57,7 +57,21 @@ int main(int argc, char *argv[]) {
                 0xD09F, 0xD0AF, 0xD0A0, 0xD0A1, 0xD0A2, 0xD0A3, 0xD096, 0xD092, 0xD0AC, 0xD0AB, 0xD097, 0xD0A8, 0xD0AD, 0xD0A9, 0xD0A7, 0xD0AA
         };
         int c;
-        if (strcmp(encoding, "1251") == 0) {
+        if (strcmp(encoding, "koi8r") == 0) {
+                //char d = 0xD0;
+                //fputc(d, out);
+                while ((c = fgetc(in)) != EOF){
+                        if (c < 0x80) {
+                                fputc(c, out);
+                        }
+                        for (int i=0; i<koi8r[i]; i++) {
+                                if (c == koi8r[i]) {
+                                        fputc(utf8[i], out);
+                                }
+                        }
+                }
+        }
+        else if (strcmp(encoding, "1251") == 0) {
                 while ((c = fgetc(in)) != EOF) {
                         // Windows-1251 to Unicode
                         if (c >= 0x80 && c <= 0xFF) {
@@ -85,20 +99,6 @@ int main(int argc, char *argv[]) {
                         } else if (c < 0x800) {
                                 fputc(0xC0 | (c >> 6), out);
                                 fputc(0x80 | (c & 0x3F), out);
-                        }
-                }
-        }
-        else if (strcmp(encoding, "koi8r") == 0) {
-                while ((c = fgetc(in)) != EOF){
-                        if (c < 0x80) {
-                                fputc(c, out);
-                        }
-                        for (int i=0; i<koi8r[i]; i++) {
-                                if (c == koi8r[i]) {
-                                        char d = 0xD0;
-                                        fputc(d, out);
-                                        fputc(utf8[i], out);
-                                }
                         }
                 }
         }
