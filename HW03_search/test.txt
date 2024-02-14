@@ -1,0 +1,24 @@
+In this article we will assume that network traffic is all bytes and packets transmitted and received over media (copper, wireless, optics or other).
+For purpose of this article we completely exclude topics which involve high level protocols such as DNS, HTTP, QUIC or other application level protocols (usually called L7).
+We will focus only on layers 3 and 4 of OSI model as regular Telecom equipment (routers, switches) does.
+There are two main tasks which we will consider as traffic processing:
+ - Traffic capture. When we receive traffic for our own needs from network.
+ - Traffic generation. When we send traffic to network.
+By combining these two tasks we can add third task we will cover too:
+ - Traffic forwarding / routing. When we receive and send traffic in same time
+Most of my own expertise lies in field of traffic capture and I'll focus on it more. It does not mean that technologies I cover will not apply for traffic generation.
+Majority of technologies will support both RX and TX very well as both of them are must for mature traffic processing technology.
+Even experienced software engineers may ask what is the special about network traffic and why we cannot write programs for it as we used to for user space applications like HTTP or DNS servers.
+Usually we measure performance of application level protocols in queries per second. For both HTTP and DNS ans we can use QPS as measurement of performance.
+We can consider any application level program as high loaded when QPS exceeds tens of thousands queries per second.
+Of course you may hear some fancy engineering stories from big tech as some of their apps can do millions queries per second.
+Truly impressive but these are clear outliers and pretty rare to see in the wild.
+Network traffic is special because of mind blowing amount of transferred data and packet rates.
+You may have used to measuring performance of network interfaces in bandwidth but it's not the most important metric we have.
+Another way to measure performance of network interface is packet rate.
+From perspective of software engineering this metric is even more important then bandwidth as it's very close to QPS in it's nature.
+You're way more likely to face issues with operating your application under high packet rate then with high bandwidth.
+What is packet rate?
+It's a number of packets we can transfer for 1 second. Well, then to calculate this value from well known bandwidth we need to known packet size and that's where things get complicated.
+In the wilderness of the Internet you're very unlikely to see packets which smaller then 64 bytes (TCP SYN with no options) or larger then 1500 bytes but in local networks you may see packets up to 9000 bytes or even more.
+Assuming that we deal with corner case (don't think that this case is rare, large portion of DDoS attacks are implemented that way) and all our packets are 64 bytes long we will have 14.8 millions packets per second for 10G link.
