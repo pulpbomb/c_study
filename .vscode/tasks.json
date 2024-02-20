@@ -5,11 +5,21 @@
             "label": "C/C++: gcc.exe build active file",
             "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe",
             "args": [
+                "-Wall",
+                "-Wextra",
+                "-Wpedantic",
+                "-std=c11",
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-DCURL_STATICLIB",
+                "-I C:\\msys64\\ucrt64\\include",
+                "-L C:\\msys64\\ucrt64\\lib",
+                "-lcurl",
+                "-lws2_32",
+                "-lwinmm"
             ],
             "options": {
                 "cwd": "${fileDirname}"
