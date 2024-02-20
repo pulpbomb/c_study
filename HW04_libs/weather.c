@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <locale.h>
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
 #include <cjson/cJSON_Utils.h>
@@ -30,15 +31,18 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
         return realsize;
 }
  
-int main(int argc, char* argv[]){
+int main(/*int argc, char* argv[]*/){
+        /*
         if (argc != 2) {
                 printf("Usage: %s <cityname>\n", argv[0]);
                 return errno;
         }
+        */
         
+        setlocale(LC_ALL, "ru_RU.UTF-8");
         CURL *curl_handle;
         CURLcode res;
- 
+
         struct MemoryStruct chunk;
  
         chunk.memory = malloc(1); /* will be grown as needed by the realloc above */
@@ -77,11 +81,13 @@ int main(int argc, char* argv[]){
                 *
                 * Do something nice with it!
                 */
-                printf("%lu bytes retrieved\n", (unsigned long)chunk.size);
+                //printf("%lu bytes retrieved\n", (unsigned long)chunk.size);
+                printf("%s bytes retrieved\n", chunk.memory);
         }
  
         /* cleanup curl stuff */
         curl_easy_cleanup(curl_handle);
+
  
         free(chunk.memory);
  
