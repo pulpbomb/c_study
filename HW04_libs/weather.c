@@ -11,11 +11,13 @@ struct MemoryStruct {
         char *memory;
         size_t size;
 };
+
 static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp){
         size_t realsize = size * nmemb;
         struct MemoryStruct *mem = (struct MemoryStruct *)userp;
  
         char *ptr = realloc(mem->memory, mem->size + realsize + 1);
+        
         if(!ptr) {
                 printf("not enough memory (realloc returned NULL)\n");
                 return 0;
@@ -30,15 +32,24 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 }
 
 int main(int argc, char *argv[]){
+        
+        setlocale(LC_ALL, "ru_RU.UTF-8");
 
         if (argc != 2) {
                 printf("Usage: %s <cityname>\n", argv[0]);
                 return errno;
         }
-        setlocale(LC_ALL, "ru_RU.UTF-8");
-        char full_url[100] = "https://wttr.in/";
+        
+        char *full_url = (char *)malloc(strlen("https://wttr.in/") + strlen(argv[1]) + strlen("?format=j1") + 1);
+        
+        if (full_url == NULL) {
+                fprintf(stderr, "Memory allocation failed.\n");
+        }
+        
+        strcpy(full_url, "https://wttr.in/");
         strcat(full_url, argv[1]);
         strcat(full_url, "?format=j1");
+
         printf("full_url: %s\n\n", full_url);
         
         CURL *curl_handle;
@@ -58,11 +69,12 @@ int main(int argc, char *argv[]){
                 curl_easy_strerror(res));
         }
         else {
-                printf("%s\n", chunk.memory);
+                //printf("%s\n", chunk.memory);
         }
 
         curl_easy_cleanup(curl_handle);
         free(chunk.memory);
+        free(full_url);
         curl_global_cleanup();
         return 0;
 }
