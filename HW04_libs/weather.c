@@ -50,7 +50,7 @@ int main(int argc, char *argv[]){
         strcat(full_url, argv[1]);
         strcat(full_url, "?format=j1");
 
-        printf("full_url: %s\n\n", full_url);
+        printf("full_url: %s\n", full_url);
         
         CURL *curl_handle;
         CURLcode res;
@@ -68,9 +68,13 @@ int main(int argc, char *argv[]){
                 fprintf(stderr, "curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
         }
-        else {
-                //printf("%s\n", chunk.memory);
-        }
+        //printf("%s\n", chunk.memory);
+
+        cJSON *root = cJSON_Parse(chunk.memory);
+        cJSON *current_condition = cJSON_GetObjectItem(root, "current_condition");
+        cJSON *temp_C = cJSON_GetObjectItem(current_condition, "temp_C");
+        printf("Температура на сегодняшний день: %d градусов Цельсия\n", temp_C->valueint);
+        cJSON_Delete(root);
 
         curl_easy_cleanup(curl_handle);
         free(chunk.memory);
