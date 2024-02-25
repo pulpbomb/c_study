@@ -33,26 +33,21 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 }
 
 int main(int argc, char *argv[]){
-        
         setlocale(LC_ALL, "ru_RU.UTF-8");
-
         if (argc != 2) {
                 fprintf(stderr, "Usage: %s <cityname>\n", argv[0]);
                 return errno;
         }
-        
         char *full_url = (char *)malloc(strlen("https://wttr.in/") + strlen(argv[1]) + strlen("?format=j1") + 1);
-        
         if (full_url == NULL) {
                 fprintf(stderr, "Memory allocation failed.\n");
                 return errno;
         }
-        
         strcpy(full_url, "https://wttr.in/");
         strcat(full_url, argv[1]);
         strcat(full_url, "?format=j1");
 
-        printf("full_url: %s\n", full_url);
+        //printf("full_url: %s\n", full_url);
         
         CURL *curl_handle;
         CURLcode res;
@@ -70,29 +65,31 @@ int main(int argc, char *argv[]){
                 fprintf(stderr, "curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
         }
-        //printf("%s\n", chunk.memory);
-        
+
         cJSON *root = cJSON_Parse(chunk.memory);
         if (root != NULL) {
-                cJSON *current_condition = cJSON_GetObjectItemCaseSensitive(root, "current_condition");
-                if (current_condition != NULL) {
-                        cJSON *temp_C = cJSON_GetObjectItemCaseSensitive(current_condition, "temp_C");
-                        if (temp_C != NULL) {
-                                printf("Температура на сегодняшний день: %d градусов Цельсия\n", temp_C->valueint);
+                cJSON *current_condition = cJSON_GetObjectItem(root, "current_condition");
+                if (current_condition != NULL && cJSON_IsArray(current_condition)) {
+                        cJSON *first_condition = cJSON_GetArrayItem(current_condition, 0);
+                        if (first_condition != NULL) {
+                                cJSON *temp_C = cJSON_GetObjectItem(first_condition, "temp_C");
+                                if (cJSON_IsString(temp_C)) {
+                                        const char *temp_C_value = temp_C->valuestring;
+                                        printf("Temperature in %s: %s degrees Celsius\n", argv[1], temp_C_value);
+                                } else {
+                                printf("Data in 'temp_C' not string.\n");
+                                }
                         } else {
-                                fprintf(stderr, "Ключ 'temp_C' не найден.\n");
-                                return errno;
+                                printf("Cant get first element from 'current_condition' array.\n");
                         }
                 } else {
-                        fprintf(stderr, "Ключ 'current_condition' не найден.\n");
-                        return errno;
+                        printf("'current_condition' field are not an array.\n");
                 }
+                cJSON_Delete(root);
         } else {
-                fprintf(stderr, "Ошибка при парсинге JSON.\n");
-                return errno;
+                printf("Error parsing JSON.\n");
         }
 
-        cJSON_Delete(root);
         curl_easy_cleanup(curl_handle);
         free(chunk.memory);
         free(full_url);
