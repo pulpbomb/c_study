@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <errno.h>
 #include <locale.h>
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
@@ -19,8 +20,8 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
         char *ptr = realloc(mem->memory, mem->size + realsize + 1);
         
         if(!ptr) {
-                printf("not enough memory (realloc returned NULL)\n");
-                return 0;
+                fprintf(stderr, "not enough memory (realloc returned NULL)\n");
+                return errno;
         }
  
         mem->memory = ptr;
@@ -36,7 +37,7 @@ int main(int argc, char *argv[]){
         setlocale(LC_ALL, "ru_RU.UTF-8");
 
         if (argc != 2) {
-                printf("Usage: %s <cityname>\n", argv[0]);
+                fprintf(stderr, "Usage: %s <cityname>\n", argv[0]);
                 return errno;
         }
         
@@ -44,6 +45,7 @@ int main(int argc, char *argv[]){
         
         if (full_url == NULL) {
                 fprintf(stderr, "Memory allocation failed.\n");
+                return errno;
         }
         
         strcpy(full_url, "https://wttr.in/");
@@ -78,15 +80,19 @@ int main(int argc, char *argv[]){
                         if (temp_C != NULL) {
                                 printf("Температура на сегодняшний день: %d градусов Цельсия\n", temp_C->valueint);
                         } else {
-                                printf("Ключ 'temp_C' не найден.\n");
+                                fprintf(stderr, "Ключ 'temp_C' не найден.\n");
+                                return errno;
                         }
                 } else {
-                        printf("Ключ 'current_condition' не найден.\n");
+                        fprintf(stderr, "Ключ 'current_condition' не найден.\n");
+                        return errno;
                 }
         } else {
-                printf("Ошибка при парсинге JSON.\n");
+                fprintf(stderr, "Ошибка при парсинге JSON.\n");
+                return errno;
         }
 
+        cJSON_Delete(root);
         curl_easy_cleanup(curl_handle);
         free(chunk.memory);
         free(full_url);
