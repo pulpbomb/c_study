@@ -14,13 +14,11 @@
                 "${file}",
                 "-o",
                 "${fileDirname}\\${fileBasenameNoExtension}.exe",
-                "-DCURL_STATICLIB",
                 "-I C:\\msys64\\ucrt64\\include",
                 "-L C:\\msys64\\ucrt64\\lib",
+                "-L C:\\msys64\\mingw64\\lib",
                 "-lcurl",
-                "-lcjson",
-                "-lws2_32",
-                "-lwinmm"
+                "-lcjson"
             ],
             "options": {
                 "cwd": "${fileDirname}"
