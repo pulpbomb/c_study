@@ -71,21 +71,9 @@ int main(int argc, char *argv[]){
         //printf("%s\n", chunk.memory);
         
         cJSON *root = cJSON_Parse(chunk.memory);
-        if (root != NULL) {
-                cJSON *current_condition = cJSON_GetObjectItemCaseSensitive(root, "current_condition");
-                if (current_condition != NULL) {
-                        cJSON *temp_C = cJSON_GetObjectItemCaseSensitive(current_condition, "temp_C");
-                        if (temp_C != NULL) {
-                                printf("Температура на сегодняшний день: %d градусов Цельсия\n", temp_C->valueint);
-                        } else {
-                                printf("Ключ 'temp_C' не найден.\n");
-                        }
-                } else {
-                        printf("Ключ 'current_condition' не найден.\n");
-                }
-        } else {
-                printf("Ошибка при парсинге JSON.\n");
-        }
+        cJSON *current_condition = cJSON_GetObjectItemCaseSensitive(root, "current_condition");
+        cJSON *temp_C = cJSON_GetObjectItemCaseSensitive(current_condition, "temp_C");
+        cJSON_Delete(root);
 
         curl_easy_cleanup(curl_handle);
         free(chunk.memory);
