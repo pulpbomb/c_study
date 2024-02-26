@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <locale.h>
 #include <curl/curl.h>
 #include <cjson/cJSON.h>
@@ -20,7 +19,7 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
         char *ptr = realloc(mem->memory, mem->size + realsize + 1);
         
         if(!ptr) {
-                fprintf(stderr, "not enough memory (realloc returned NULL)\n");
+                fprintf(stderr, "Not enough memory (realloc returned NULL)\n\n");
                 return errno;
         }
  
@@ -35,19 +34,19 @@ static size_t WriteMemoryCallback(void *contents, size_t size, size_t nmemb, voi
 int main(int argc, char *argv[]){
         setlocale(LC_ALL, "ru_RU.UTF-8");
         if (argc != 2) {
-                fprintf(stderr, "Usage: %s <cityname>\n", argv[0]);
+                fprintf(stderr, "Usage: %s <location_name>\n", argv[0]);
                 return errno;
         }
         char *full_url = (char *)malloc(strlen("https://wttr.in/") + strlen(argv[1]) + strlen("?format=j1") + 1);
         if (full_url == NULL) {
-                fprintf(stderr, "Memory allocation failed.\n");
+                fprintf(stderr, "Memory allocation failed.\n\n");
                 return errno;
         }
         strcpy(full_url, "https://wttr.in/");
         strcat(full_url, argv[1]);
         strcat(full_url, "?format=j1");
 
-        printf("full_url: %s\n", full_url);
+        printf("\nUrl you got from argv: %s\n\n", full_url);
         
         CURL *curl_handle;
         CURLcode res;
@@ -62,7 +61,7 @@ int main(int argc, char *argv[]){
         curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "libcurl-agent/1.0");
         res = curl_easy_perform(curl_handle);
         if(res != CURLE_OK) {
-                fprintf(stderr, "curl_easy_perform() failed: %s\n",
+                fprintf(stderr, "curl_easy_perform() failed: %s\n\n",
                 curl_easy_strerror(res));
         }
 
@@ -72,7 +71,8 @@ int main(int argc, char *argv[]){
                 cJSON *query = cJSON_GetObjectItem(cJSON_GetArrayItem(request, 0), "query");
                 const char *queryStr = query->valuestring;
                 if (strstr(queryStr, "Thot Not") != NULL) {
-                        fprintf(stderr, "Bad location name. Try city name. Exit.\n");
+                        fprintf(stderr, "Bad location name. Try another. Exit...\n\n");
+                        cJSON_Delete(root);
                         return errno;
                 }
                 cJSON *current_condition = cJSON_GetObjectItem(root, "current_condition");
@@ -88,21 +88,21 @@ int main(int argc, char *argv[]){
                                         printf("Temperature in %s: %s degrees Celsius\n", argv[1], temp_C->valuestring);
                                         printf("Weather is: %s\n", value->valuestring);
                                         printf("Wind dirrection: %s\n", winddir16Point->valuestring);
-                                        printf("Wind speed: %s Kmph\n", windspeedKmph->valuestring);
+                                        printf("Wind speed: %s Kmph\n\n", windspeedKmph->valuestring);
                                 } else {
-                                printf("Some data in 'current_condition' not string.\n");
+                                printf("Some data in 'current_condition' not a string.\n\n");
                                 }
                         } else {
-                                printf("Cant get first element from 'current_condition' array.\n");
+                                printf("Cant get first element from 'current_condition' array.\n\n");
                         }
                 } else {
-                        printf("'current_condition' field are not an array.\n");
+                        printf("'current_condition' field are not an array.\n\n");
                 }
-                cJSON_Delete(root);
         } else {
-                printf("Error parsing JSON.\n");
+                printf("Error parsing JSON.\n\n");
         }
 
+        cJSON_Delete(root);
         curl_easy_cleanup(curl_handle);
         free(chunk.memory);
         free(full_url);
