@@ -47,7 +47,7 @@ int main(int argc, char *argv[]){
         strcat(full_url, argv[1]);
         strcat(full_url, "?format=j1");
 
-        //printf("full_url: %s\n", full_url);
+        printf("full_url: %s\n", full_url);
         
         CURL *curl_handle;
         CURLcode res;
@@ -68,16 +68,29 @@ int main(int argc, char *argv[]){
 
         cJSON *root = cJSON_Parse(chunk.memory);
         if (root != NULL) {
+                cJSON *request = cJSON_GetObjectItem(root, "request");
+                cJSON *query = cJSON_GetObjectItem(cJSON_GetArrayItem(request, 0), "query");
+                const char *queryStr = query->valuestring;
+                if (strstr(queryStr, "Thot Not") != NULL) {
+                        fprintf(stderr, "Bad location name. Try city name. Exit.\n");
+                        return errno;
+                }
                 cJSON *current_condition = cJSON_GetObjectItem(root, "current_condition");
                 if (current_condition != NULL && cJSON_IsArray(current_condition)) {
                         cJSON *first_condition = cJSON_GetArrayItem(current_condition, 0);
                         if (first_condition != NULL) {
                                 cJSON *temp_C = cJSON_GetObjectItem(first_condition, "temp_C");
-                                if (cJSON_IsString(temp_C)) {
-                                        const char *temp_C_value = temp_C->valuestring;
-                                        printf("Temperature in %s: %s degrees Celsius\n", argv[1], temp_C_value);
+                                cJSON *winddir16Point = cJSON_GetObjectItem(first_condition, "winddir16Point");
+                                cJSON *windspeedKmph = cJSON_GetObjectItem(first_condition, "windspeedKmph");
+                                cJSON *weatherDesc = cJSON_GetObjectItem(first_condition, "weatherDesc");
+                                cJSON *value = cJSON_GetObjectItem(cJSON_GetArrayItem(weatherDesc, 0), "value");
+                                if (cJSON_IsString(temp_C) && cJSON_IsString(winddir16Point) && cJSON_IsString(windspeedKmph) && cJSON_IsString(value)) {
+                                        printf("Temperature in %s: %s degrees Celsius\n", argv[1], temp_C->valuestring);
+                                        printf("Weather is: %s\n", value->valuestring);
+                                        printf("Wind dirrection: %s\n", winddir16Point->valuestring);
+                                        printf("Wind speed: %s Kmph\n", windspeedKmph->valuestring);
                                 } else {
-                                printf("Data in 'temp_C' not string.\n");
+                                printf("Some data in 'current_condition' not string.\n");
                                 }
                         } else {
                                 printf("Cant get first element from 'current_condition' array.\n");
