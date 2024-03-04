@@ -11,6 +11,10 @@ data_length: equ ($-data) / 8
     section   .text
 ;;; print_int proc
 print_int:
+    push rbp
+    mov rbp, rsp
+    sub rsp, 16
+
     mov rsi, rdi
     mov rdi, int_format
     xor rax, rax
@@ -19,6 +23,8 @@ print_int:
     xor rdi, rdi
     call fflush
 
+    mov rsp, rbp
+    pop rbp
     ret
 
 ;;; p proc
@@ -31,8 +37,11 @@ p:
 add_element:
     push rbp
     push rbx
+    push r14
+    mov rbp, rsp
+    sub rsp, 16
 
-    mov rbp, rdi
+    mov r14, rdi
     mov rbx, rsi
 
     mov rdi, 16
@@ -40,16 +49,21 @@ add_element:
     test rax, rax
     jz abort
 
-    mov [rax], rbp
+    mov [rax], r14
     mov [rax + 8], rbx
 
+    mov rsp, rbp
+    pop r14
     pop rbx
     pop rbp
-
     ret
 
 ;;; m proc
 m:
+    push rbp
+    mov rbp, rsp
+    sub rsp, 16
+
     test rdi, rdi
     jz outm
 
@@ -70,6 +84,8 @@ m:
     pop rbp
 
 outm:
+    mov rsp, rbp
+    pop rbp
     ret
 
 ;;; f proc

@@ -11,4 +11,4 @@ main.o: main.asm
 clean:
 	rm -f asm-prog *.o core
 
-PHONY: clean
+.PHONY: clean
