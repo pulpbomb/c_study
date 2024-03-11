@@ -3,14 +3,14 @@
         {
             "type": "cppbuild",
             "label": "C/C++: gcc.exe build active file",
-            "command": "C:\\msys64\\ucrt64\\bin\\gcc.exe",
+            "command": "D:\\msys64\\ucrt64\\bin\\gcc.exe",
             "args": [
                 "-Wall",
                 "-Wextra",
                 "-Wpedantic",
                 "-std=c11",
-                "-I C:\\msys64\\ucrt64\\include",
-                "-L C:\\msys64\\ucrt64\\lib",
+                "-I D:\\msys64\\ucrt64\\include",
+                "-L D:\\msys64\\ucrt64\\lib",
                 "-fdiagnostics-color=always",
                 "-g",
                 "${file}",
